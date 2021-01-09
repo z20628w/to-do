@@ -1,10 +1,12 @@
-
 import React, { Component } from 'react'
+import PropTypes, { number } from 'prop-types';
+import axios from "axios"
 import './App.css';
 
 class App extends Component {
   constructor(props) {
     super(props);
+    console.log('构造函数！')
     this.state = {
       list: [
         {
@@ -20,9 +22,68 @@ class App extends Component {
       },
     };
   }
+
+  static propTypes = {
+    // name:PropTypes.oneOfType([PropTypes.number,PropTypes.string])
+    // name:PropTypes.oneOf(['名称'])
+    name: (props, propName, componentName) => {
+      console.log('props', props, 'propName', propName, 'componentName', componentName)
+      if (!props[propName])
+        return new Error(propName + "格式不对")
+    }
+  }
+
+  static defaultProps = {
+    name: "没传"
+  }
+
+  componentWillReceiveProps(){
+    //  第一次传的数据不会执行
+    console.log('组件将要接收数据更新钩子函数')
+  }
+
+  componentWillMount(){
+    console.log('组件即将挂载钩子函数')
+  }
+
+  componentDidMount(prevProp,prevState,data){
+    console.log('页面挂载完成钩子函数')
+    this.forceUpdate() //强制更新
+  }
+
+  shouldComponentUpdate(){
+    console.log('组件是否更新阀门钩子函数')
+    // true -- 更新  false -- 不更新
+    return true 
+  }
+
+  componentWillUpdate(){
+    console.log('组件即将更新钩子函数')
+  }
+
+  componentDidUpdate(){
+    console.log('组件更新完毕钩子函数')
+  }
+
+  componentWillUnmount(){
+    console.log('页面即将卸载钩子函数')
+  }
+
+  static getDerivedStateFromProps(props,state){
+    console.log('页面state的值不可更改了，直接为props,props为组件传入的值')
+    // return null
+    return {}
+  }
+
+  getSnapshotBeforeUpdate(){
+    console.log('在组件更新之前执行，返回值为【组件更新完毕钩子函数】的第三个参数')
+    return null
+  }
+
   render() {
     return (
       <div className="main">
+        {this.props.name}
         {/* 标题 */}
         <div className="title">
           待办事项表格
@@ -86,11 +147,15 @@ class App extends Component {
     this.setState(this.state)
   }
 
-  add(){
+  add() {
+    axios.get(window.location.origin+'/api/v3/tag/list?pid=0&apiver=2&plat=0').then( res => {
+      console.log('成功',res)
+    }, req => console.log('失败',req))
+
     let mess = null
-    if(!this.state.temp.name) mess = '请输入名称'
-    if(!this.state.temp.content) mess="请输入内容"
-    if(mess){
+    if (!this.state.temp.name) mess = '请输入名称'
+    if (!this.state.temp.content) mess = "请输入内容"
+    if (mess) {
       alert(mess)
       return
     }
